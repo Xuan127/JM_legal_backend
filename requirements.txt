@@ -1,4 +1,5 @@
 flask
-geocoder
+geopy
 requests
 python-dotenv
+beautifulsoup4
