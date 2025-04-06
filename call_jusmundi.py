@@ -156,7 +156,8 @@ cases = {}
 decisions = {}
 individuals = {}
 parties = {}
-for i in range(1):
+for i in range(10):
+    print(f"Processing page {i + 1}...")  # Print the current page being processed for debugging
     case = parse_case(list_cases(i))  # Loop through the first 5 pages to get cases
     cases.update(case)  # Merge the parsed cases into the main cases dictionary
 
@@ -181,28 +182,40 @@ for i in range(1):
             party_data["case_id"] = case_id
             parties[party_id] = party_data
 
-# Save as pickle files
-with open('cases.pkl', 'wb') as f:
-    pickle.dump(cases, f)
+names = []
+for person in individuals.values():
+    if 'name' in person:
+        names.append(person['name'])
+
+# Extract names from parties
+for party in parties.values():
+    if 'name' in party:
+        names.append(party['name'])
 
 # Save as JSON files
 with open('cases.json', 'w') as f:
     json.dump(cases, f, indent=4)
 
-with open('decisions.pkl', 'wb') as f:
-    pickle.dump(decisions, f)
+# with open('cases.pkl', 'wb') as f:
+#     pickle.dump(cases, f)
 
 with open('decisions.json', 'w') as f:
-    json.dump(cases, f, indent=4)
+    json.dump(decisions, f, indent=4)
 
-with open('individuals.pkl', 'wb') as f:
-    pickle.dump(individuals, f)
+# with open('decisions.pkl', 'wb') as f:
+#     pickle.dump(decisions, f)
 
 with open('individuals.json', 'w') as f:
-    json.dump(cases, f, indent=4)
+    json.dump(individuals, f, indent=4)
 
-with open('parties.pkl', 'wb') as f:
-    pickle.dump(parties, f)
+# with open('individuals.pkl', 'wb') as f:
+#     pickle.dump(individuals, f)
 
 with open('parties.json', 'w') as f:
-    json.dump(cases, f, indent=4)
+    json.dump(parties, f, indent=4)
+
+# with open('parties.pkl', 'wb') as f:
+#     pickle.dump(parties, f)
+
+with open('names.json', 'w') as f:
+    json.dump(names, f, indent=4)

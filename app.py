@@ -1,5 +1,8 @@
 # 1. Import the Flask class
 from flask import Flask
+from flask import request
+import json
+from draw_graph import generate_relationship_graph, get_subgraph_by_name
 
 # 2. Create an instance of the Flask class
 #    __name__ tells Flask where to look for resources like templates and static files.
@@ -18,6 +21,24 @@ def about_page():
     """This function runs when someone visits the /about URL."""
     return 'This is a simple Flask application!'
 
+@app.route('/query_to_graph', methods=['POST'])
+def query_to_graph():
+    """This function echoes back the request data."""
+    message = request.get_json().get('query', '')
+
+    cases_path = 'cases.json'
+    decisions_path = 'decisions.json'
+    individuals_path = 'individuals.json'
+    parties_path = 'parties.json'
+    
+    graph = generate_relationship_graph(cases_path, decisions_path, individuals_path, parties_path)
+    
+    target_name = 'United Operations Limited'
+    k = 2  # Adjust k as needed
+    
+    subgraph = get_subgraph_by_name(graph, message, k)
+    return json.dumps(subgraph, indent=4)
+
 # 5. Run the application
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
