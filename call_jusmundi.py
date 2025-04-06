@@ -163,6 +163,7 @@ for i in range(10):
 
     case_ids = list(case.keys())  # Get the case IDs for this batch of cases
     for case_id in case_ids:
+        print(f"Processing case: {case_id}")
         # For each decision ID in the case, fetch the decision details
         decision_ids = case[case_id]["decision_ids"]
         for decision_id in decision_ids:

@@ -7,7 +7,7 @@ def fuzzy_search(name_search):
         names = json.load(f)  # Load the list of names from the JSON file
 
     matches = process.extract(name_search, names, scorer=fuzz.token_set_ratio, limit=5)
-    return matches[0]
+    return matches[0][0]
 
 def generate_relationship_graph(cases_file, decisions_file, individuals_file, parties_file):
     # Load JSON files
@@ -61,7 +61,9 @@ def generate_relationship_graph(cases_file, decisions_file, individuals_file, pa
         key = tuple(sorted((source, target)))
         if key not in edge_set:
             edge_set.add(key)
-            edges.append({'source': key[0], 'target': key[1]})
+            edges.append({'source': key[0], 
+                          'target': key[1],
+                          'id': str(key[0]) + '_' + str(key[1])})
     
     # 1. Party ↔ Party via Case (entity A -> case_id -> entity B)
     for case in cases.values():
@@ -148,17 +150,66 @@ def get_subgraph_by_name(graph, target_name, k):
     subgraph = {'nodes': sub_nodes, 'edges': sub_edges}
     return subgraph
 
+def get_union_subgraph_by_names(graph, target_names, k):
+    """
+    Returns a subgraph (nodes and edges) containing all nodes within k degrees of separation
+    from any node with a name in target_names.
+    
+    Parameters:
+      graph: dict with keys 'nodes' and 'edges'
+      target_names: list of names to search for
+      k: degrees of separation
+      
+    Returns:
+      A dictionary representing the union subgraph with keys 'nodes' and 'edges'.
+      If no starting node is found for a name, that name is skipped.
+    """
+    from collections import deque
+
+    # Build an adjacency list from the graph's edges.
+    adj = {node['id']: set() for node in graph['nodes']}
+    for edge in graph['edges']:
+        source = edge['source']
+        target = edge['target']
+        adj[source].add(target)
+        adj[target].add(source)
+
+    # Identify starting node IDs for all provided names.
+    start_nodes = set()
+    for name in target_names:
+        matching_ids = [node['id'] for node in graph['nodes'] if node['data']['name'] == name]
+        if not matching_ids:
+            print(f"No node found with name: {name}")
+        else:
+            start_nodes.update(matching_ids)
+
+    if not start_nodes:
+        print("No valid starting nodes found for the given names.")
+        return None
+
+    # Perform a multi-source BFS from all start nodes.
+    visited = {}  # node_id -> distance from any starting node
+    queue = deque()
+    for node_id in start_nodes:
+        visited[node_id] = 0
+        queue.append(node_id)
+
+    while queue:
+        current = queue.popleft()
+        current_depth = visited[current]
+        if current_depth < k:
+            for neighbor in adj[current]:
+                if neighbor not in visited:
+                    visited[neighbor] = current_depth + 1
+                    queue.append(neighbor)
+
+    # Construct the subgraph from all visited nodes.
+    sub_nodes = [node for node in graph['nodes'] if node['id'] in visited]
+    visited_ids = set(visited.keys())
+    sub_edges = [edge for edge in graph['edges'] 
+                 if edge['source'] in visited_ids and edge['target'] in visited_ids]
+
+    return {'nodes': sub_nodes, 'edges': sub_edges}
+
 if __name__ == '__main__':
-    cases_path = 'cases.json'
-    decisions_path = 'decisions.json'
-    individuals_path = 'individuals.json'
-    parties_path = 'parties.json'
-    
-    graph = generate_relationship_graph(cases_path, decisions_path, individuals_path, parties_path)
-    
-    target_name = 'United Operations Limited'
-    k = 2  # Adjust k as needed
-    
-    subgraph = get_subgraph_by_name(graph, target_name, k)
-    if subgraph:
-        print(json.dumps(subgraph, indent=4))
+    print(fuzzy_search("United Operations Limited"))  # Test the fuzzy search function
