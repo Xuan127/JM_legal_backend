@@ -1,0 +1,4 @@
+flask
+geocoder
+requests
+python-dotenv
