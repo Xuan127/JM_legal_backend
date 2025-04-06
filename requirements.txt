@@ -1,5 +1,4 @@
 flask
-geopy
 requests
 python-dotenv
 beautifulsoup4
