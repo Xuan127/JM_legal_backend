@@ -24,7 +24,7 @@ def about_page():
 @app.route('/query_to_graph', methods=['POST'])
 def query_to_graph():
     """This function echoes back the request data."""
-    message = request.get_json().get('query', '')
+    query = request.get_json().get('query', '')
 
     cases_path = 'cases.json'
     decisions_path = 'decisions.json'
@@ -32,12 +32,21 @@ def query_to_graph():
     parties_path = 'parties.json'
     
     graph = generate_relationship_graph(cases_path, decisions_path, individuals_path, parties_path)
-    
-    target_name = 'United Operations Limited'
+
     k = 2  # Adjust k as needed
     
-    subgraph = get_subgraph_by_name(graph, message, k)
+    subgraph = get_subgraph_by_name(graph, query, k)
     return json.dumps(subgraph, indent=4)
+
+@app.route('/full_graph', methods=['GET'])
+def full_graph():
+    cases_path = 'cases.json'
+    decisions_path = 'decisions.json'
+    individuals_path = 'individuals.json'
+    parties_path = 'parties.json'
+    
+    graph = generate_relationship_graph(cases_path, decisions_path, individuals_path, parties_path)
+    return json.dumps(graph, indent=4)
 
 # 5. Run the application
 if __name__ == '__main__':
