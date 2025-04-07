@@ -194,29 +194,29 @@ for party in parties.values():
         names.append(party['name'])
 
 # Save as JSON files
-with open('cases.json', 'w') as f:
+with open('cases.json', 'w', encoding='utf-8') as f:
     json.dump(cases, f, indent=4)
 
 # with open('cases.pkl', 'wb') as f:
 #     pickle.dump(cases, f)
 
-with open('decisions.json', 'w') as f:
+with open('decisions.json', 'w', encoding='utf-8') as f:
     json.dump(decisions, f, indent=4)
 
 # with open('decisions.pkl', 'wb') as f:
 #     pickle.dump(decisions, f)
 
-with open('individuals.json', 'w') as f:
+with open('individuals.json', 'w', encoding='utf-8') as f:
     json.dump(individuals, f, indent=4)
 
 # with open('individuals.pkl', 'wb') as f:
 #     pickle.dump(individuals, f)
 
-with open('parties.json', 'w') as f:
+with open('parties.json', 'w', encoding='utf-8') as f:
     json.dump(parties, f, indent=4)
 
 # with open('parties.pkl', 'wb') as f:
 #     pickle.dump(parties, f)
 
-with open('names.json', 'w') as f:
+with open('names.json', 'w', encoding='utf-8') as f:
     json.dump(names, f, indent=4)
