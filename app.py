@@ -3,7 +3,7 @@ from flask import Flask
 from flask import request
 from flask_cors import CORS
 import json
-from draw_graph import generate_relationship_graph, get_subgraph_by_name, fuzzy_search
+from draw_graph import generate_relationship_graph, get_subgraph_by_name, fuzzy_search, get_union_subgraph_by_names
 
 # 2. Create an instance of the Flask class
 #    __name__ tells Flask where to look for resources like templates and static files.
@@ -45,13 +45,15 @@ def query_to_graph():
 @app.route('/queries_to_graph', methods=['POST'])
 def queries_to_graph():
     """This function echoes back the request data."""
-    query = request.get_json().get('query', '')
+    queries = request.get_json().get('query', '')
 
-    name_search = fuzzy_search(query)  # Perform fuzzy search to find the best match for the query
+    names = []
+    for query in queries:
+        names.append(fuzzy_search(query))
 
     k = 2  # Adjust k as needed
     
-    subgraph = get_subgraph_by_name(GRAPH, name_search, k)
+    subgraph = get_union_subgraph_by_names(GRAPH, names, k)
     return json.dumps(subgraph, indent=4)
 
 @app.route('/full_graph', methods=['GET'])

@@ -32,7 +32,7 @@ def generate_relationship_graph(cases_file, decisions_file, individuals_file, pa
         key = f"individual_{ind_id}"
         node_map[key] = next_id
         nodes.append({
-            'id': next_id,
+            'id': str(next_id),
             'type': 'profileNode',
             'data': {
                 'name': ind['name'],
@@ -46,7 +46,7 @@ def generate_relationship_graph(cases_file, decisions_file, individuals_file, pa
         key = f"party_{party_id}"
         node_map[key] = next_id
         nodes.append({
-            'id': next_id,
+            'id': str(next_id),
             'type': 'profileNode',
             'data': {
                 'name': party['name'],
@@ -61,8 +61,8 @@ def generate_relationship_graph(cases_file, decisions_file, individuals_file, pa
         key = tuple(sorted((source, target)))
         if key not in edge_set:
             edge_set.add(key)
-            edges.append({'source': key[0], 
-                          'target': key[1],
+            edges.append({'source': str(key[0]), 
+                          'target': str(key[1]),
                           'id': str(key[0]) + '_' + str(key[1])})
     
     # 1. Party ↔ Party via Case (entity A -> case_id -> entity B)
@@ -212,4 +212,14 @@ def get_union_subgraph_by_names(graph, target_names, k):
     return {'nodes': sub_nodes, 'edges': sub_edges}
 
 if __name__ == '__main__':
-    print(fuzzy_search("United Operations Limited"))  # Test the fuzzy search function
+    
+    # Example usage of the functions in this module.
+    graph = generate_relationship_graph('cases.json', 'decisions.json', 'individuals.json', 'parties.json')
+    
+    # Test single name subgraph
+    subgraph = get_subgraph_by_name(graph, 'united ops', 2)
+    print(json.dumps(subgraph, indent=4))
+
+    # Test union of multiple names
+    subgraph_union = get_union_subgraph_by_names(graph, ['United Operations Limited', 'Ana R. Ulseth'], 2)
+    print(json.dumps(subgraph_union, indent=4))
